@@ -23,10 +23,12 @@ const Doc = "tags finds all tags of a struct"
 
 var StructPath string
 var Key string
+var Ignore string
 
 func init() {
 	Analyzer.Flags.StringVar(&StructPath, "struct", "", "absolute path to the struct (e.g. example.com/pkg/name.StructName)")
 	Analyzer.Flags.StringVar(&Key, "key", "", "key of tags to find")
+	Analyzer.Flags.StringVar(&Ignore, "ignore", "-", "tag value to ignore")
 }
 
 func extractStruct(typ types.Type) (*types.Struct, error) {
@@ -70,6 +72,9 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		tag := Struct.Tag(i)
 		stag := reflect.StructTag(tag)
 		if value, ok := stag.Lookup(Key); ok {
+			if value == Ignore {
+				continue
+			}
 			fmt.Println(value)
 		}
 	}
