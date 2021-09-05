@@ -11,5 +11,5 @@ go 1.16 or later
 ```
 go install github.com/1m-yen-driven/isutil/cmd/...@latest
 cd /path/to/go/project
-structs ./... | peco | xargs -I@ tags -struct @ -key json
+structs ./... | peco | xargs -I@ tags -struct @ -key json ./...
 ```
