@@ -47,6 +47,27 @@ func extractStruct(typ types.Type) (*types.Struct, error) {
 	}
 }
 
+func printTags(s *types.Struct, prefixes []string) {
+	if s == nil {
+		return
+	}
+	for i := 0; i < s.NumFields(); i++ {
+		field := s.Field(i)
+		tag := reflect.StructTag(s.Tag(i))
+		if value, ok := tag.Lookup(Key); ok {
+			if value == Ignore {
+				continue
+			}
+			value = "`" + value + "`"
+			values := append(prefixes[:], value)
+			if s2, err := extractStruct(field.Type()); err == nil {
+				printTags(s2, values)
+			}
+			fmt.Println(strings.Join(values, "."))
+		}
+	}
+}
+
 func run(pass *analysis.Pass) (interface{}, error) {
 	if StructPath == "" {
 		return nil, fmt.Errorf("-struct option is required")
@@ -68,16 +89,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	for i := 0; i < Struct.NumFields(); i++ {
-		tag := Struct.Tag(i)
-		stag := reflect.StructTag(tag)
-		if value, ok := stag.Lookup(Key); ok {
-			if value == Ignore {
-				continue
-			}
-			fmt.Println(value)
-		}
-	}
+	printTags(Struct, []string{})
 
 	return nil, nil
 }
